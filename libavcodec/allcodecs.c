@@ -728,6 +728,7 @@ extern const FFCodec ff_realtext_decoder;
 extern const FFCodec ff_sami_decoder;
 extern const FFCodec ff_srt_encoder;
 extern const FFCodec ff_srt_decoder;
+extern const FFCodec ff_ebustl_decoder;
 extern const FFCodec ff_stl_decoder;
 extern const FFCodec ff_subrip_encoder;
 extern const FFCodec ff_subrip_decoder;

@@ -443,6 +443,7 @@ extern const AVInputFormat  ff_srt_demuxer;
 extern const FFOutputFormat ff_srt_muxer;
 extern const AVInputFormat  ff_str_demuxer;
 extern const AVInputFormat  ff_stl_demuxer;
+extern const AVInputFormat  ff_ebustl_demuxer;
 extern const FFOutputFormat ff_streamhash_muxer;
 extern const AVInputFormat  ff_subviewer1_demuxer;
 extern const AVInputFormat  ff_subviewer_demuxer;

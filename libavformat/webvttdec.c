@@ -24,6 +24,8 @@
  * @see http://dev.w3.org/html5/webvtt/
  */
 
+#include <libavcodec/avcodec.h>
+
 #include "avformat.h"
 #include "internal.h"
 #include "subtitles.h"
@@ -173,6 +175,7 @@ end:
 static int webvtt_read_packet(AVFormatContext *s, AVPacket *pkt)
 {
     WebVTTContext *webvtt = s->priv_data;
+
     return ff_subtitles_queue_read_packet(&webvtt->q, pkt);
 }
 

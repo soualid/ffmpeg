@@ -3603,7 +3603,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
         .long_name = NULL_IF_CONFIG_SMALL("ARIB STD-B24 caption"),
         .profiles  = NULL_IF_CONFIG_SMALL(ff_arib_caption_profiles),
     },
-
+    {
+        .id        = AV_CODEC_ID_EBUSTL,
+        .type      = AVMEDIA_TYPE_SUBTITLE,
+        .name      = "ebustl",
+        .long_name = NULL_IF_CONFIG_SMALL("EBU STL format"),
+        .props     = AV_CODEC_PROP_TEXT_SUB,
+    },
     /* other kind of codecs and pseudo-codecs */
     {
         .id        = AV_CODEC_ID_TTF,
