@@ -136,65 +136,100 @@ static void log_tti_block_hex(const uint8_t *buf, int buf_size) {
     av_log(NULL, AV_LOG_DEBUG, "TTI Block (hex): %s\n", hex_output);
 }
 
-static char* map_iso6937_to_utf8(unsigned char diacritic, char base);
+static const char* map_iso6937_to_utf8(unsigned char diacritic, char base);
 
-static char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
-    typedef struct {
-        unsigned char diacritic;
-        char base;
-        char utf8[4];
-    } DiacriticMapping;
+static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
+    switch (diacritic) {
+        case 0xC1:  // Accent grave
+            switch (base) {
+                case 'A': return "À";
+                case 'E': return "È";
+                case 'I': return "Ì";
+                case 'O': return "Ò";
+                case 'U': return "Ù";
+                case 'a': return "à";
+                case 'e': return "è";
+                case 'i': return "ì";
+                case 'o': return "ò";
+                case 'u': return "ù";
+            }
+            break;
+        case 0xC2:  // Accent aigu
+            switch (base) {
+                case 'A': return "Á";
+                case 'E': return "É";
+                case 'I': return "Í";
+                case 'O': return "Ó";
+                case 'U': return "Ú";
+                case 'a': return "á";
+                case 'e': return "é";  // C'est ici que la conversion se fait pour 'é'
+                case 'i': return "í";
+                case 'o': return "ó";
+                case 'u': return "ú";
+            }
+            break;
+        case 0xC3:  // Accent circonflexe
+            switch (base) {
+                case 'A': return "Â";
+                case 'E': return "Ê";
+                case 'I': return "Î";
+                case 'O': return "Ô";
+                case 'U': return "Û";
+                case 'a': return "â";
+                case 'e': return "ê";
+                case 'i': return "î";
+                case 'o': return "ô";
+                case 'u': return "û";
+            }
+            break;
 
-    DiacriticMapping mappings[] = {
-        {0xC1, 'A', "À"}, {0xC1, 'E', "È"}, {0xC1, 'I', "Ì"}, {0xC1, 'O', "Ò"}, {0xC1, 'U', "Ù"},
-        {0xC1, 'a', "à"}, {0xC1, 'e', "è"}, {0xC1, 'i', "ì"}, {0xC1, 'o', "ò"}, {0xC1, 'u', "ù"},
-        {0xC2, 'A', "Á"}, {0xC2, 'E', "É"}, {0xC2, 'I', "Í"}, {0xC2, 'O', "Ó"}, {0xC2, 'U', "Ú"},
-        {0xC2, 'a', "á"}, {0xC2, 'e', "é"}, {0xC2, 'i', "í"}, {0xC2, 'o', "ó"}, {0xC2, 'u', "ú"},
-        {0xC3, 'A', "Â"}, {0xC3, 'E', "Ê"}, {0xC3, 'I', "Î"}, {0xC3, 'O', "Ô"}, {0xC3, 'U', "Û"},
-        {0xC3, 'a', "â"}, {0xC3, 'e', "ê"}, {0xC3, 'i', "î"}, {0xC3, 'o', "ô"}, {0xC3, 'u', "û"},
-        {0xC4, 'A', "Ä"}, {0xC4, 'E', "Ë"}, {0xC4, 'I', "Ï"}, {0xC4, 'O', "Ö"}, {0xC4, 'U', "Ü"},
-        {0xC4, 'a', "ä"}, {0xC4, 'e', "ë"}, {0xC4, 'i', "ï"}, {0xC4, 'o', "ö"}, {0xC4, 'u', "ü"},
-        {0xC5, 'A', "Å"}, {0xC5, 'U', "Ů"},
-        {0xC5, 'a', "å"}, {0xC5, 'u', "ů"},
-        {0xC6, 'C', "Ç"}, {0xC6, 'G', "Ģ"}, {0xC6, 'K', "Ķ"}, {0xC6, 'L', "Ļ"}, {0xC6, 'N', "Ņ"},
-        {0xC6, 'c', "ç"}, {0xC6, 'g', "ģ"}, {0xC6, 'k', "ķ"}, {0xC6, 'l', "ļ"}, {0xC6, 'n', "ņ"},
-        {0xC7, 'N', "Ñ"}, {0xC7, 'C', "Ć"},
-        {0xC7, 'n', "ñ"}, {0xC7, 'c', "ć"},
-        {0xC8, 'O', "Ø"}, {0xC8, 'a', "å"}, {0xC8, 'u', "ů"},
-        {0xC8, 'o', "ø"}, {0xC8, 'u', "ů"},
-    };
-
-    for (size_t i = 0; i < sizeof(mappings) / sizeof(DiacriticMapping); i++) {
-        if (mappings[i].diacritic == diacritic && mappings[i].base == base) {
-            return mappings[i].utf8;
-        }
+        case 0xC8:  // Tréma
+            switch (base) {
+                case 'A': return "Ä";
+                case 'E': return "Ë";
+                case 'I': return "Ï";
+                case 'O': return "Ö";
+                case 'U': return "Ü";
+                case 'a': return "ä";
+                case 'e': return "ë";
+                case 'i': return "ï";
+                case 'o': return "ö";
+                case 'u': return "ü";
+            }
+            break;            
+        // Ajoute d'autres cas si nécessaire
     }
-    return NULL;
+    return NULL;  // Retourne NULL si aucun mappage n'est trouvé
 }
 
 static char* convert_iso6937_to_utf8(const unsigned char *input, size_t length) {
-    size_t out_len = length * 4;
+    size_t out_len = length * 4;  // UTF-8 peut prendre jusqu'à 4 octets par caractère
     char *output = malloc(out_len);
     if (!output) return NULL;
 
     size_t j = 0;
     for (size_t i = 0; i < length; i++) {
         unsigned char diacritic = input[i];
+
+        // Vérifie si c'est un diacritique
         if (diacritic >= 0xC1 && diacritic <= 0xCF) {
             if (i + 1 < length) {
                 const char* utf8_char = map_iso6937_to_utf8(diacritic, input[i + 1]);
                 if (utf8_char) {
-                    strcpy(&output[j], utf8_char);
-                    j += strlen(utf8_char);
-                    i++;
+                    size_t utf8_len = strlen(utf8_char);
+                    memcpy(&output[j], utf8_char, utf8_len);
+                    j += utf8_len;
+                    i++;  // Passe au caractère suivant
                     continue;
                 }
             }
         }
+
+        // Si ce n'est pas un diacritique, copie simplement le caractère
         output[j++] = input[i];
     }
 
-    output[j] = '\0';
+    output[j] = '\0';  // Terminaison de la chaîne
     return output;
 }
 
@@ -263,11 +298,12 @@ bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *b
 }
 
 // Function to extract text and colors from TTI block and return an ASS formatted string
+// Function to extract text and colors from TTI block and return an ASS formatted string
 static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, int tti_block_size) {
     int text_field_offset = 13;
     char *ass_string = NULL;
     int i, text_len = 0;
-    char line[tti_block_size * 2];
+    char *line = malloc(tti_block_size * 2 * sizeof(char));
     int last_was_newline = 0;
     int line_count = 0;  // Line counter
 
@@ -319,13 +355,22 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
 
         if (character == 0x8A) { // New line
             line[text_len] = '\0'; // Terminate the line
-            if (line_count > 0 && text_len > 0) {
-                ass_string = av_asprintf("%s\\N%s", ass_string, line); // Add newline before the new line if it is not empty
-            } else if (text_len > 0) {
-                ass_string = av_asprintf("%s%s", ass_string, line); // Add first line without newline if it is not empty
-            }
-            line_count++; // Increment line counter
 
+            // Convert line to UTF-8
+            char *utf8_line = convert_iso6937_to_utf8((unsigned char*)line, text_len);
+
+            if (utf8_line) {
+                if (line_count > 0 && text_len > 0) {
+                    ass_string = av_asprintf("%s\\N%s", ass_string, utf8_line); // Add newline before the new line if it is not empty
+                } else if (text_len > 0) {
+                    ass_string = av_asprintf("%s%s", ass_string, utf8_line); // Add first line without newline if it is not empty
+                }
+                av_free(utf8_line);  // Libérer la mémoire après utilisation
+            } else {
+                av_log(NULL, AV_LOG_ERROR, "Erreur lors de la conversion ISO 6937 vers UTF-8\n");
+            }
+
+            line_count++; // Increment line counter
             text_len = 0; // Reset the counter for the next line
 
             // Extract colors for the next line
@@ -381,15 +426,22 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
     }
 
     line[text_len] = '\0'; // Terminate the last line
-    if (line_count > 0 && text_len > 0) {
-        ass_string = av_asprintf("%s\\N%s", ass_string, line); // Add newline before the last line if it is not empty
-    } else if (text_len > 0) {
-        ass_string = av_asprintf("%s%s", ass_string, line); // Add the first line without newline if it is not empty
+
+    // Convert the final line to UTF-8
+    char *utf8_line = convert_iso6937_to_utf8((unsigned char*)line, text_len);
+    if (utf8_line) {
+        if (line_count > 0 && text_len > 0) {
+            ass_string = av_asprintf("%s\\N%s", ass_string, utf8_line); // Add newline before the last line if it is not empty
+        } else if (text_len > 0) {
+            ass_string = av_asprintf("%s%s", ass_string, utf8_line); // Add the first line without newline if it is not empty
+        }
+        av_free(utf8_line);  // Libérer la mémoire après utilisation
+    } else {
+        av_log(NULL, AV_LOG_ERROR, "Erreur lors de la conversion ISO 6937 vers UTF-8\n");
     }
 
     return ass_string;
 }
-
 
 
 static int ebustl_decode_frame(AVCodecContext *avctx, AVSubtitle *sub,
@@ -407,7 +459,7 @@ static int ebustl_decode_frame(AVCodecContext *avctx, AVSubtitle *sub,
         av_log(NULL, AV_LOG_DEBUG, "Extracted ASS text: %s\n", ass_text);
 
         // Ignore empty subtitles
-        if (!ass_text || ass_text[0] == '\0') {
+        if (!ass_text /* || ass_text[0] == '\0' */) {
             av_freep(&ass_text);
             buf += TTI_BLOCK_SIZE;
             buf_size -= TTI_BLOCK_SIZE;
@@ -440,11 +492,13 @@ static int ebustl_decode_frame(AVCodecContext *avctx, AVSubtitle *sub,
 
         // Build the final ASS string with color and alignment
         char *final_ass_text = av_asprintf("%s%s%s", alignment_str, ass_text, "{\\bord3}");
+        av_log(NULL, AV_LOG_DEBUG, "final_ass_text: %s\n", final_ass_text);
 
         // Add the subtitle to the ASS structure
-        ff_ass_add_rect(sub, final_ass_text, s->readorder++, 0, NULL, NULL);
-
+        //sub->start_display_time = av_rescale_q(0, (AVRational){1, 1000}, avctx->time_base);
         sub->end_display_time = av_rescale_q(avpkt->duration, (AVRational){1, 1000}, avctx->time_base);
+
+        ff_ass_add_rect(sub, final_ass_text, s->readorder++, 0, NULL, NULL);
 
         av_freep(&ass_text);
         av_freep(&final_ass_text);
@@ -452,9 +506,8 @@ static int ebustl_decode_frame(AVCodecContext *avctx, AVSubtitle *sub,
 
         buf += TTI_BLOCK_SIZE;
         buf_size -= TTI_BLOCK_SIZE;
+        *got_sub_ptr = 1;
     }
-
-    if (s->readorder > 0) *got_sub_ptr = 1;
 
     return 0;
 }
