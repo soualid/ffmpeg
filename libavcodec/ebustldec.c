@@ -267,13 +267,13 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
     if (background_color == 0) {
         border_color = "{\\3c&HFFFFFF&}"; // White
     } else if (background_color == 1) {
-        border_color = "{\\3c&H00FFFF&}"; // Yellow (BGR: 00FFFF)
+        border_color = "{\\3c&H0000FF&}"; // Red (BGR: 0000FF)
     } else if (background_color == 2) {
         border_color = "{\\3c&H00FF00&}"; // Green (BGR: 00FF00)
     } else if (background_color == 3) {
-        border_color = "{\\3c&HFF0000&}"; // Blue (BGR: FF0000)
+        border_color = "{\\3c&H00FFFF&}"; // Yellow (BGR: 00FFFF)
     } else if (background_color == 4) {
-        border_color = "{\\3c&H0000FF&}"; // Red (BGR: 0000FF)
+        border_color = "{\\3c&HFF0000&}"; // Blue (BGR: FF0000)
     } else if (background_color == 5) {
         border_color = "{\\3c&HFF00FF&}"; // Magenta (BGR: FF00FF)
     } else if (background_color == 6) {
