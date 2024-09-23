@@ -77,7 +77,7 @@ static const char* map_iso6937_to_utf8(unsigned char diacritic, char base);
 
 static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
     switch (diacritic) {
-        case 0xC1:  // Accent grave
+        case 0xC1:
             switch (base) {
                 case 'A': return "À";
                 case 'E': return "È";
@@ -91,7 +91,7 @@ static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
                 case 'u': return "ù";
             }
             break;
-        case 0xC2:  // Accent aigu
+        case 0xC2:
             switch (base) {
                 case 'A': return "Á";
                 case 'E': return "É";
@@ -99,13 +99,13 @@ static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
                 case 'O': return "Ó";
                 case 'U': return "Ú";
                 case 'a': return "á";
-                case 'e': return "é";  // C'est ici que la conversion se fait pour 'é'
+                case 'e': return "é";
                 case 'i': return "í";
                 case 'o': return "ó";
                 case 'u': return "ú";
             }
             break;
-        case 0xC3:  // Accent circonflexe
+        case 0xC3:
             switch (base) {
                 case 'A': return "Â";
                 case 'E': return "Ê";
@@ -120,7 +120,7 @@ static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
             }
             break;
 
-        case 0xC8:  // Tréma
+        case 0xC8:
             switch (base) {
                 case 'A': return "Ä";
                 case 'E': return "Ë";
@@ -134,13 +134,12 @@ static const char* map_iso6937_to_utf8(unsigned char diacritic, char base) {
                 case 'u': return "ü";
             }
             break;            
-        // Ajoute d'autres cas si nécessaire
     }
-    return NULL;  // Retourne NULL si aucun mappage n'est trouvé
+    return NULL;
 }
 
 static char* convert_iso6937_to_utf8(const unsigned char *input, size_t length) {
-    size_t out_len = length * 4;  // UTF-8 peut prendre jusqu'à 4 octets par caractère
+    size_t out_len = length * 4;
 
     size_t j = 0;
     
@@ -149,7 +148,6 @@ static char* convert_iso6937_to_utf8(const unsigned char *input, size_t length) 
     for (size_t i = 0; i < length; i++) {
         unsigned char diacritic = input[i];
 
-        // Vérifie si c'est un diacritique
         if (diacritic >= 0xC1 && diacritic <= 0xCF) {
             if (i + 1 < length) {
                 const char* utf8_char = map_iso6937_to_utf8(diacritic, input[i + 1]);
@@ -157,17 +155,16 @@ static char* convert_iso6937_to_utf8(const unsigned char *input, size_t length) 
                     size_t utf8_len = strlen(utf8_char);
                     memcpy(&output[j], utf8_char, utf8_len);
                     j += utf8_len;
-                    i++;  // Passe au caractère suivant
+                    i++;
                     continue;
                 }
             }
         }
 
-        // Si ce n'est pas un diacritique, copie simplement le caractère
         output[j++] = input[i];
     }
 
-    output[j] = '\0';  // Terminaison de la chaîne
+    output[j] = '\0';
     return output;
 }
 
@@ -175,6 +172,7 @@ static char* convert_iso6937_to_utf8(const unsigned char *input, size_t length) 
 
 // Extract text and colors from TTI block
 bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *background_color, int line_count);
+
 bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *background_color, int line_count) {
     int current_line = 0;  // Start at the first line
     *text_color = 0x00;  // Default to white
@@ -186,11 +184,11 @@ bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *b
         // If we encounter a 0x8A byte, we move to the next line
         if (byte == 0x8A) {
             current_line++;
-            av_log(NULL, AV_LOG_INFO, "New line detected at offset %d (line %d)\n", i, current_line);
+            av_log(NULL, AV_LOG_DEBUG, "New line detected at offset %d (line %d)\n", i, current_line);
 
             // If we've reached the desired line, we stop
             if (current_line > line_count) {
-                av_log(NULL, AV_LOG_INFO, "Line %d detected, stopping color search\n", line_count);
+                av_log(NULL, AV_LOG_DEBUG, "Line %d detected, stopping color search\n", line_count);
                 break;
             }
 
@@ -203,30 +201,8 @@ bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *b
         if (current_line == line_count) {
             if (byte <= 0x07) {
                 *text_color = byte;
-
-                // Log the text color found and its offset
-                av_log(NULL, AV_LOG_INFO, "Text color found at offset %d: 0x%02X (%s)\n", i, byte,
-                       byte == 0x00 ? "White" :
-                       byte == 0x01 ? "Red" :
-                       byte == 0x02 ? "Green" :
-                       byte == 0x03 ? "Yellow" :
-                       byte == 0x04 ? "Blue" :
-                       byte == 0x05 ? "Magenta" :
-                       byte == 0x06 ? "Cyan" :
-                       byte == 0x07 ? "Black" : "Unknown");
             } else if (byte >= 0x10 && byte <= 0x17) {
                 *background_color = byte & 0x07;
-
-                // Log the background color found and its offset
-                av_log(NULL, AV_LOG_INFO, "Background color found at offset %d: 0x%02X (%s)\n", i, byte,
-                       (*background_color == 0x00) ? "White" :
-                       (*background_color == 0x01) ? "Yellow" :
-                       (*background_color == 0x02) ? "Green" :
-                       (*background_color == 0x03) ? "Blue" :
-                       (*background_color == 0x04) ? "Red" :
-                       (*background_color == 0x05) ? "Magenta" :
-                       (*background_color == 0x06) ? "Cyan" :
-                       (*background_color == 0x07) ? "Black" : "Unknown");
             }
         }
 
@@ -236,7 +212,6 @@ bool extract_colors_from_tti(const uint8_t *buf, uint8_t *text_color, uint8_t *b
 }
 
 // Function to extract text and colors from TTI block and return an ASS formatted string
-
 static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, int tti_block_size) {
     int text_field_offset = 13;
     char *text_color_str = NULL;
@@ -245,7 +220,7 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
     char *ass_string = NULL;
     int i, text_len = 0;
     char *line = malloc(tti_block_size * 2 * sizeof(char));
-    int line_count = 0;  // Line counter
+    int line_count = 0;
 
     uint8_t text_color, background_color;
     extract_colors_from_tti(tti_block, &text_color, &background_color, line_count);
@@ -292,7 +267,7 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
         uint8_t character = tti_block[i];
 
         if (character == 0x8A) { // New line
-            char *utf8_line = NULL; // Déclaration de la variable en haut
+            char *utf8_line = NULL;
 
             line[text_len] = '\0'; // Terminate the line
 
@@ -305,9 +280,9 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
                 } else if (text_len > 0) {
                     ass_string = av_asprintf("%s%s", ass_string, utf8_line); // Add first line without newline if it is not empty
                 }
-                av_free(utf8_line);  // Libérer la mémoire après utilisation
+                av_free(utf8_line);
             } else {
-                av_log(NULL, AV_LOG_ERROR, "Erreur lors de la conversion ISO 6937 vers UTF-8\n");
+                av_log(NULL, AV_LOG_ERROR, "Cannot convert string from ISO 6937 to UTF-8\n");
             }
 
             line_count++; // Increment line counter
@@ -375,9 +350,9 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
         } else if (text_len > 0) {
             ass_string = av_asprintf("%s%s", ass_string, utf8_line); // Add the first line without newline if it is not empty
         }
-        av_free(utf8_line);  // Libérer la mémoire après utilisation
+        av_free(utf8_line);
     } else {
-        av_log(NULL, AV_LOG_ERROR, "Erreur lors de la conversion ISO 6937 vers UTF-8\n");
+        av_log(NULL, AV_LOG_ERROR, "Cannot convert string from ISO 6937 to UTF-8\n");
     }
 
     return ass_string;
