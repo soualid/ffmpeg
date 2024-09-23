@@ -248,13 +248,13 @@ static char *extract_text_and_colors_from_tti_block(const uint8_t *tti_block, in
     if (text_color == 0) {
         text_color_str = "{\\c&HFFFFFF&}"; // White
     } else if (text_color == 1) {
-        text_color_str = "{\\c&HFF0000&}"; // Blue (BGR: FF0000)
+        text_color_str = "{\\c&H0000FF&}"; // Red (BGR: 0000FF)
     } else if (text_color == 2) {
         text_color_str = "{\\c&H00FF00&}"; // Green (BGR: 00FF00)
     } else if (text_color == 3) {
         text_color_str = "{\\c&H00FFFF&}"; // Yellow (BGR: 00FFFF)
     } else if (text_color == 4) {
-        text_color_str = "{\\c&H0000FF&}"; // Red (BGR: 0000FF)
+        text_color_str = "{\\c&HFF0000&}"; // Blue (BGR: FF0000)
     } else if (text_color == 5) {
         text_color_str = "{\\c&HFF00FF&}"; // Magenta (BGR: FF00FF)
     } else if (text_color == 6) {
