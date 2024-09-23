@@ -45,6 +45,8 @@ static int64_t ebustl_timestamp_to_pts(const uint8_t *timecode)
 
 static int ebustl_read_packet(AVFormatContext *s, AVPacket *pkt)
 {
+    int64_t pts;
+    int64_t pts_end;
     int ret = av_new_packet(pkt, TTI_BLOCK_SIZE);
     if (ret < 0)
         return ret;
@@ -53,9 +55,9 @@ static int ebustl_read_packet(AVFormatContext *s, AVPacket *pkt)
         av_packet_unref(pkt);
         return AVERROR_EOF;
     }
-    int64_t pts = ebustl_timestamp_to_pts(pkt->data + 5);
+    pts = ebustl_timestamp_to_pts(pkt->data + 5);
     pkt->pts = pts;
-    int64_t pts_end = ebustl_timestamp_to_pts(pkt->data + 9);
+    pts_end = ebustl_timestamp_to_pts(pkt->data + 9);
     pkt->duration = pts_end - pts;
     pkt->stream_index = 0;
     return 0;
